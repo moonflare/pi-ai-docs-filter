@@ -9,7 +9,7 @@ Many projects accumulate multiple AI assistant config files — for Cursor, Copi
 - **Filters everything by default.** All discovered AI doc files are excluded from Pi's context.
 - **Pi auto-loaded files** (`AGENTS.md`, `CLAUDE.md`) are actively stripped from the system prompt.
 - **Other files** are simply never injected.
-- **`/ai-docs`** opens an interactive overlay where you toggle files on/off with `space`. Your choices persist for the session.
+- **`/ai-docs`** opens an interactive overlay where you toggle files on/off with `space`. Choices are written to `.pi/ai-docs.json` immediately and persist across all sessions.
 - **Status bar** shows `docs:N` when N files are enabled, or `docs:off` when all are filtered.
 
 ## Supported file patterns
@@ -85,7 +85,7 @@ Once installed, the extension loads automatically.
 | `enter` | Confirm and close |
 | `esc` | Cancel without changes |
 
-Enabled files stay on for the rest of the session and are restored if you `/reload`.
+Enabled files persist across sessions, restarts, and `/reload`. Choices are saved to `.pi/ai-docs.json` the moment you confirm the picker.
 
 ## Development
 
