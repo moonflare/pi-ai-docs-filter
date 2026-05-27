@@ -17,6 +17,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { Key, matchesKey } from "@earendil-works/pi-tui";
 
 // ─── File catalogue ───────────────────────────────────────────────────────────
 
@@ -257,19 +258,19 @@ export default function aiDocsFilter(pi: ExtensionAPI) {
         invalidate() {},
 
         handleInput(data: string) {
-          if (data === "\r" || data === "\n") {
+          if (matchesKey(data, Key.enter)) {
             done(new Set(pending));
-          } else if (data === "\x1b") {
+          } else if (matchesKey(data, Key.escape)) {
             done(null);
-          } else if (data === " ") {
+          } else if (matchesKey(data, Key.space)) {
             const file = knownFiles[cursor].path;
             if (pending.has(file)) pending.delete(file);
             else pending.add(file);
             tui.requestRender();
-          } else if (data === "\x1b[A" || data === "k") {
+          } else if (matchesKey(data, Key.up) || data === "k") {
             cursor = Math.max(0, cursor - 1);
             tui.requestRender();
-          } else if (data === "\x1b[B" || data === "j") {
+          } else if (matchesKey(data, Key.down) || data === "j") {
             cursor = Math.min(knownFiles.length - 1, cursor + 1);
             tui.requestRender();
           }
