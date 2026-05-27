@@ -35,7 +35,7 @@ Only files that **actually exist** in the project are shown in the picker. The e
 ### Global (personal use)
 
 ```bash
-pi install git:github.com/YOUR_USERNAME/pi-ai-docs-filter
+pi install git:github.com/moonflare/pi-ai-docs-filter
 ```
 
 ### Project-wide (shared with your team)
@@ -45,7 +45,7 @@ Add to `.pi/settings.json` in your repo and commit it. Pi installs missing packa
 ```json
 {
   "packages": [
-    "git:github.com/YOUR_USERNAME/pi-ai-docs-filter"
+    "git:github.com/moonflare/pi-ai-docs-filter"
   ]
 }
 ```
@@ -55,7 +55,7 @@ Add to `.pi/settings.json` in your repo and commit it. Pi installs missing packa
 ### Try it without installing
 
 ```bash
-pi -e git:github.com/YOUR_USERNAME/pi-ai-docs-filter
+pi -e git:github.com/moonflare/pi-ai-docs-filter
 ```
 
 ## Usage
@@ -76,7 +76,7 @@ Enabled files stay on for the rest of the session and are restored if you `/relo
 ## Development
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/pi-ai-docs-filter
+git clone https://github.com/moonflare/pi-ai-docs-filter
 cd pi-ai-docs-filter
 
 # Load it in a project for testing (no install)
