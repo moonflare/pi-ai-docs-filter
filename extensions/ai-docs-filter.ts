@@ -14,8 +14,8 @@
  *   Common project docs — ARCHITECTURE.md, SECURITY.md, CONTRIBUTING.md, DEVELOPMENT.md
  */
 
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { basename, resolve } from "node:path";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { basename, dirname, resolve } from "node:path";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 
 // ─── File catalogue ───────────────────────────────────────────────────────────
@@ -161,6 +161,33 @@ function matchesFile(contextFilePath: string, managedPath: string): boolean {
   return norm === managedPath || norm.endsWith("/" + managedPath);
 }
 
+// ─── Per-project config ─────────────────────────────────────────────────────
+
+const CONFIG_FILE = ".pi/ai-docs.json";
+
+interface Config {
+  enabled: string[];
+}
+
+function loadConfig(cwd: string): Set<string> {
+  const configPath = resolve(cwd, CONFIG_FILE);
+  if (!existsSync(configPath)) return new Set();
+  try {
+    const data = JSON.parse(readFileSync(configPath, "utf-8")) as Config;
+    if (Array.isArray(data.enabled)) return new Set(data.enabled);
+  } catch {
+    // Malformed config — start fresh
+  }
+  return new Set();
+}
+
+function saveConfig(cwd: string, enabledFiles: Set<string>): void {
+  const configPath = resolve(cwd, CONFIG_FILE);
+  mkdirSync(dirname(configPath), { recursive: true });
+  const config: Config = { enabled: Array.from(enabledFiles).sort() };
+  writeFileSync(configPath, JSON.stringify(config, null, 2) + "\n", "utf-8");
+}
+
 // ─── Extension ────────────────────────────────────────────────────────────────
 
 export default function aiDocsFilter(pi: ExtensionAPI) {
@@ -254,7 +281,7 @@ export default function aiDocsFilter(pi: ExtensionAPI) {
     if (result === null) return; // cancelled
 
     enabledFiles = result;
-    pi.appendEntry("ai-docs-state", { enabledFiles: Array.from(enabledFiles) });
+    saveConfig(ctx.cwd, enabledFiles);
     updateStatus(ctx);
 
     const n = enabledFiles.size;
@@ -311,29 +338,11 @@ export default function aiDocsFilter(pi: ExtensionAPI) {
     return { systemPrompt: prompt };
   });
 
-  // ── Session start: discover files and restore state ──────────────────────────
+  // ── Session start: discover files and load project config ──────────────────
 
   pi.on("session_start", async (_event, ctx) => {
     knownFiles = discoverFiles(ctx.cwd);
-
-    const stateEntry = ctx.sessionManager
-      .getEntries()
-      .filter(
-        (e: { type: string; customType?: string }) =>
-          e.type === "custom" && e.customType === "ai-docs-state",
-      )
-      .pop() as { data?: { enabledFiles: string[] } } | undefined;
-
-    if (stateEntry?.data?.enabledFiles) {
-      enabledFiles = new Set(stateEntry.data.enabledFiles);
-    }
-
+    enabledFiles = loadConfig(ctx.cwd);
     updateStatus(ctx);
-  });
-
-  // ── Persist enabled-files state on each turn ─────────────────────────────────
-
-  pi.on("turn_start", () => {
-    pi.appendEntry("ai-docs-state", { enabledFiles: Array.from(enabledFiles) });
   });
 }

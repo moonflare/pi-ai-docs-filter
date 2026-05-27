@@ -58,6 +58,20 @@ Add to `.pi/settings.json` in your repo and commit it. Pi installs missing packa
 pi -e git:github.com/moonflare/pi-ai-docs-filter
 ```
 
+## Configuration
+
+Choices are saved to `.pi/ai-docs.json` in the project root the moment you confirm the picker. The file is plain JSON:
+
+```json
+{
+  "enabled": ["AGENTS.md", "SECURITY.md"]
+}
+```
+
+- **Persists across sessions** — starting a new session (`/new`) keeps your selections.
+- **Per-project** — each project has its own `.pi/ai-docs.json`, completely independent.
+- **Committable** — check it in to share defaults with teammates. Or add it to `.gitignore` for personal-only settings.
+
 ## Usage
 
 Once installed, the extension loads automatically.
